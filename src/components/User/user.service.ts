@@ -1,3 +1,4 @@
+import { mailOptionsToUser, sendAdminMail } from '@Config/nodemailer'
 import { IUserService } from '@Types'
 import { checkPassword, encryptPassword, signToken } from '@Utils'
 import { User } from './user.model'
@@ -5,17 +6,13 @@ import { User } from './user.model'
 export class UserService implements IUserService {
   constructor() {}
 
-  async createUser(user: string, password: string): Promise<boolean> {
-    try {
-      const encryptedPassword = await encryptPassword(password)
-      await User.create({ user, password: encryptedPassword })
-      return true
-    } catch (error: any) {
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        return false
-      }
-      return false
-    }
+  async createUser(user: string, password: string, email: string) {
+    const encryptedPassword = await encryptPassword(password)
+    await User.create({ user, password: encryptedPassword })
+
+    const optionsUser = mailOptionsToUser(email, user)
+
+    sendAdminMail(optionsUser)
   }
 
   async findUser(user: string, password: string): Promise<string> {

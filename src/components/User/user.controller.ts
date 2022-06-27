@@ -9,15 +9,14 @@ export class UserController {
 
   register: Middleware = async (req, res, next) => {
     try {
-      const { user, password } = req.body
-      const resp = await this.service.createUser(user, password)
-
-      if (!resp) {
-        return next(boomify(new Error('Usuario o contraseña incorrecto'), { statusCode: 401 }))
-      }
+      const { user, password, email } = req.body
+      await this.service.createUser(user, password, email)
 
       res.sendStatus(201)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return next(boomify(new Error('Usuario o contraseña incorrecto'), { statusCode: 401 }))
+      }
       next(error)
     }
   }

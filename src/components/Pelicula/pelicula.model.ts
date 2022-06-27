@@ -7,18 +7,16 @@ Pelicula.init(
   {
     titulo: {
       type: DataTypes.STRING,
+      unique: true,
     },
     fecha_creacion: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DATE,
     },
     calificacion: {
       type: DataTypes.INTEGER,
     },
     imagen: {
       type: DataTypes.STRING,
-    },
-    personaje_ID: {
-      type: DataTypes.INTEGER,
     },
   },
   { sequelize, modelName: 'pelicula', timestamps: false }

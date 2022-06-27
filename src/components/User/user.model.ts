@@ -7,6 +7,7 @@ User.init(
   {
     user: { type: DataTypes.STRING, unique: true },
     password: DataTypes.STRING,
+    email: { type: DataTypes.STRING, unique: true },
   },
   { sequelize, modelName: 'user', timestamps: false }
 )

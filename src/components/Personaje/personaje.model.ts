@@ -21,9 +21,6 @@ Personaje.init(
     imagen: {
       type: DataTypes.STRING,
     },
-    pelicula_ID: {
-      type: DataTypes.INTEGER,
-    },
   },
   { sequelize, modelName: 'personaje', timestamps: false }
 )

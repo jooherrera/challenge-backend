@@ -32,6 +32,9 @@
     "paths": {
       "@User/*": ["src/components/User/*"],
       "@Personaje/*": ["src/components/Personaje/*"],
+      "@Genero/*": ["src/components/Genero/*"],
+      "@Config/nodemailer": ["src/config/nodemailer.ts"],
+      "@Service": ["src/components/Service.ts"],
       "@Pelicula/*": ["src/components/Pelicula/*"],
       "@Middlewares": ["src/middleware/index.ts"],
       "@Routes": ["src/routes/index.ts"],
