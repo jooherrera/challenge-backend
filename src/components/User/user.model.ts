@@ -1,14 +1,14 @@
 import { sequelize } from '@Config/sequelize'
-import { DataTypes } from 'sequelize'
+import { DataTypes, Model } from 'sequelize'
 
-const User = sequelize.define('User', {
-  user: {
-    type: DataTypes.STRING,
-    unique: true,
+class User extends Model {}
+
+User.init(
+  {
+    user: { type: DataTypes.STRING, unique: true },
+    password: DataTypes.STRING,
   },
-  password: {
-    type: DataTypes.STRING,
-  },
-})
+  { sequelize, modelName: 'user', timestamps: false }
+)
 
 export { User }

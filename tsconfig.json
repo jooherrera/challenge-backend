@@ -31,6 +31,8 @@
     "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       "@User/*": ["src/components/User/*"],
+      "@Personaje/*": ["src/components/Personaje/*"],
+      "@Pelicula/*": ["src/components/Pelicula/*"],
       "@Middlewares": ["src/middleware/index.ts"],
       "@Routes": ["src/routes/index.ts"],
       "@Utils": ["src/utils/index.ts"],

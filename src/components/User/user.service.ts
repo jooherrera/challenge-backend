@@ -1,4 +1,3 @@
-import { boomify } from '@hapi/boom'
 import { IUserService } from '@Types'
 import { checkPassword, encryptPassword, signToken } from '@Utils'
 import { User } from './user.model'

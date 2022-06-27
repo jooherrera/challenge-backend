@@ -14,6 +14,10 @@ export interface IUserService {
   findUser(user: string, password: string): Promise<string | null>
 }
 
+export interface IPersonajeService {
+  createPersonaje(p: any): Promise<void>
+}
+
 declare global {
   namespace Express {
     interface Request {
