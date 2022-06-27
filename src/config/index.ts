@@ -1,4 +1,6 @@
 import './associations'
+import dotenv from 'dotenv'
+dotenv.config()
 
 import { UserController } from '@User/user.controller'
 import { UserService } from '@User/user.service'

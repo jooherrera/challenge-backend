@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.peliculaNetwork = void 0;
+const _Config_1 = require("../../config/index.js");
+const _Middlewares_1 = require("../../middleware/index.js");
+const express_1 = require("express");
+exports.peliculaNetwork = (0, express_1.Router)();
+exports.peliculaNetwork.use(_Middlewares_1.Mid.obtainTokenFromHeader);
+exports.peliculaNetwork.post('/movies', _Config_1.peliculaController.create);
+exports.peliculaNetwork.get('/movies/:id?', _Config_1.peliculaController.find);
+exports.peliculaNetwork.patch('/movies/:id', _Config_1.peliculaController.update);
+exports.peliculaNetwork.delete('/movies/:id', _Config_1.peliculaController.delete);
+exports.peliculaNetwork.post('/movies/:id', _Config_1.peliculaController.addCharacter);
+exports.peliculaNetwork.delete('/movies/:id/:idCharacter', _Config_1.peliculaController.removeCharacter);

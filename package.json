@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/src/index.js",
+    "start": "node dist/src/index.js  ",
     "dev": "nodemon src/index.ts dotenv_config_path=.env",
     "seed": "nodemon src/index.ts",
     "clean": "rm -rf dist",

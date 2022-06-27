@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.personajeNetwork = void 0;
+const _Config_1 = require("../../config/index.js");
+const _Middlewares_1 = require("../../middleware/index.js");
+const express_1 = require("express");
+exports.personajeNetwork = (0, express_1.Router)();
+exports.personajeNetwork.use(_Middlewares_1.Mid.obtainTokenFromHeader);
+exports.personajeNetwork.post('/characters', _Config_1.personajeController.create);
+exports.personajeNetwork.get('/characters/:id?', _Config_1.personajeController.find);
+exports.personajeNetwork.patch('/characters/:id', _Config_1.personajeController.update);
+exports.personajeNetwork.delete('/characters/:id', _Config_1.personajeController.delete);

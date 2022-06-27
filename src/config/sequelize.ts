@@ -1,10 +1,9 @@
 import { Sequelize } from 'sequelize'
 
-console.log('aca')
-
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: `${process.cwd()}/database/database.sqlite`,
+  logging: false,
 })
 
 const connect = async (force = false) => {
