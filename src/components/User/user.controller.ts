@@ -24,7 +24,16 @@ export class UserController {
 
   login: Middleware = async (req, res, next) => {
     try {
-      res.sendStatus(200)
+      const { user, password } = req.body
+
+      const token = await this.service.findUser(user, password)
+
+      if (!token) {
+        const err = new Error('Usuario o contraseña incorrecto')
+        throw boomify(err, { statusCode: 401 })
+      }
+
+      res.status(200).json({ token: `Bearer ${token}` })
     } catch (error) {
       next(error)
     }

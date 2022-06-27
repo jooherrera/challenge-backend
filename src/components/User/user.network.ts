@@ -5,4 +5,4 @@ export const userNetwork = Router()
 
 userNetwork.post('/auth/register', userController.register)
 
-userNetwork.get('/auth/login', userController.login)
+userNetwork.post('/auth/login', userController.login)
