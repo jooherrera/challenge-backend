@@ -38,4 +38,8 @@ export class UserController {
       next(error)
     }
   }
+
+  dashboard: Middleware = async (req, res, next) => {
+    res.sendStatus(200)
+  }
 }
