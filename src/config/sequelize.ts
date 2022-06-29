@@ -1,3 +1,4 @@
+import { logError, logMsg } from '@Utils'
 import { Sequelize } from 'sequelize'
 
 const sequelize = new Sequelize({
@@ -10,9 +11,9 @@ const connect = async (force = false) => {
   try {
     await sequelize.authenticate()
     await sequelize.sync({ force })
-    console.log('Connection has been established successfully.')
+    logMsg('Connection has been established successfully.')
   } catch (error) {
-    console.error('Unable to connect to the database:', error)
+    logError(`Unable to connect to the database: ${error}`)
   }
 }
 

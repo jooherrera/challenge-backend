@@ -20,9 +20,9 @@ export interface IService {
   findAll(): Promise<any>
   updatePersonaje(id: number, p: any): Promise<void>
   findByName(name: string): Promise<any>
+  findByID(id: number): Promise<any>
   findByAge(age: number): Promise<any>
   findByMovie(id: number): Promise<any>
-  findPersonajeByID(id: number): Promise<any>
 
   /* -------------------------------- PELICULA -------------------------------- */
   addMovie(newMovie: NewMovie): Promise<void>

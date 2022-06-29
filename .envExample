@@ -1,1 +1,11 @@
-PORT=
+PORT=3000
+
+SALT=8
+SECRET=dsagasgdagsdgsdagdsaagsd
+EXP_TIME=1d
+
+
+HOSTMAILER=smtp.gmail.com
+PORTMAILER=465
+USERMAILER=
+PASSMAILER=

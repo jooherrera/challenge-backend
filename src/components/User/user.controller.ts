@@ -3,6 +3,7 @@ import { boomify } from '@hapi/boom'
 
 export class UserController {
   private service: IUserService
+
   constructor(service: IUserService) {
     this.service = service
   }
@@ -15,7 +16,7 @@ export class UserController {
       res.sendStatus(201)
     } catch (error: any) {
       if (error.name === 'SequelizeUniqueConstraintError') {
-        return next(boomify(new Error('Usuario o contraseña incorrecto'), { statusCode: 401 }))
+        return next(boomify(new Error('Usuario no disponible'), { statusCode: 409 }))
       }
       next(error)
     }
@@ -32,13 +33,9 @@ export class UserController {
         throw boomify(err, { statusCode: 401 })
       }
 
-      res.status(200).json({ token: `Bearer ${token}` })
+      res.status(202).json({ token: `Bearer ${token}` })
     } catch (error) {
       next(error)
     }
-  }
-
-  dashboard: Middleware = async (req, res, next) => {
-    res.sendStatus(200)
   }
 }

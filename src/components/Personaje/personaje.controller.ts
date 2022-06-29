@@ -11,10 +11,10 @@ export class PersonajeController {
     try {
       const { body } = req
       await this.service.createPersonaje(body)
-      res.sendStatus(200)
+      res.sendStatus(201)
     } catch (error: any) {
       if (error.name === 'SequelizeUniqueConstraintError') {
-        return next(boomify(new Error('Ya existe el personaje'), { statusCode: 400 }))
+        return next(boomify(new Error('Ya existe el personaje'), { statusCode: 409 }))
       }
       next(error)
     }
@@ -24,20 +24,27 @@ export class PersonajeController {
     try {
       const { name, age, idMovie } = req.query
       const { id } = req.params
-      let personajes: any
+      let personajes
+
+      if (id) {
+        personajes = await this.service.findByID(Number(id))
+
+        if (!personajes) {
+          return res.status(404).send('No se encontró el personaje')
+        }
+        return res.status(200).send(personajes)
+      }
       if (name && typeof name === 'string') {
         personajes = await this.service.findByName(name)
-      } else if (age && typeof age === 'string') {
+      } else if (age) {
         personajes = await this.service.findByAge(Number(age))
-      } else if (idMovie && typeof idMovie === 'string') {
+      } else if (idMovie) {
         personajes = await this.service.findByMovie(Number(idMovie))
-      } else if (id) {
-        personajes = await this.service.findPersonajeByID(Number(id))
       } else {
         personajes = await this.service.findAll()
       }
 
-      res.status(200).send(personajes)
+      res.status(200).send(personajes ?? [])
     } catch (error) {
       next(error)
     }
@@ -48,8 +55,11 @@ export class PersonajeController {
       const { body } = req
       const { id } = req.params
       await this.service.updatePersonaje(Number(id), body)
-      res.sendStatus(202)
-    } catch (error) {
+      res.sendStatus(200)
+    } catch (error: any) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return next(boomify(new Error(`El nombre no se puede repetir`), { statusCode: 409 }))
+      }
       next(error)
     }
   }
@@ -58,7 +68,7 @@ export class PersonajeController {
     try {
       const { id } = req.params
       await this.service.deletePersonaje(Number(id))
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }

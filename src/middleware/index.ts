@@ -1,12 +1,18 @@
 import { boomify } from '@hapi/boom'
 import { Middleware, MiddlewareError } from '@Types'
-import { logError, logMsg, verifyToken } from '@Utils'
+import { logError, verifyToken } from '@Utils'
+import { NextFunction, Request, Response } from 'express'
 
 const boomErrorHandler: MiddlewareError = (error, req, res, next) => {
   if (error.isBoom) {
     const { output } = error
     return res.status(output.statusCode).json(output.payload.message)
   }
+
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({ message: 'Formato JSON inválido' })
+  }
+
   logError(error)
   next(error)
 }
@@ -36,4 +42,15 @@ const obtainTokenFromHeader: Middleware = async (req, res, next) => {
   }
 }
 
-export const Mid = { boomErrorHandler, errorHandler, obtainTokenFromHeader }
+const validatorHandler = (schema: any, property: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const data = req[property as keyof typeof req]
+    const { error } = schema.validate(data)
+    if (error) {
+      next(boomify(new Error('Parametros incorrectos.'), { statusCode: 400 }))
+    }
+    next()
+  }
+}
+
+export const Mid = { boomErrorHandler, errorHandler, obtainTokenFromHeader, validatorHandler }

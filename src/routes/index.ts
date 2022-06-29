@@ -7,17 +7,16 @@ import { generoNetwork } from '@Genero/genero.network'
 
 export const router = Router()
 
-router.use(userNetwork)
-
-router.use('/api/v1', personajeNetwork)
-
-router.use('/api/v1', peliculaNetwork)
-
-router.use('/api/v1', generoNetwork)
-
 router.get('/', (req, res) => {
   res.status(200).send('HOME API')
 })
+router.use(userNetwork)
+
+router.use(personajeNetwork)
+
+router.use(peliculaNetwork)
+
+router.use(generoNetwork)
 
 router.get('*', (req, res) => {
   res.status(404).send('NOT FOUND')

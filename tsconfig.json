@@ -39,6 +39,7 @@
       "@Middlewares": ["src/middleware/index.ts"],
       "@Routes": ["src/routes/index.ts"],
       "@Utils": ["src/utils/index.ts"],
+      "@Utils/schemas": ["src/utils/requestSchema.ts"],
       "@Types": ["src/types/index.ts"],
       "@Config": ["src/config/index.ts"],
       "@Config/sequelize": ["src/config/sequelize.ts"]

@@ -3,7 +3,6 @@ import { Pelicula } from '@Pelicula/pelicula.model'
 import { CretePer, IService, newGenre, NewMovie } from '@Types'
 import { boomify } from '@hapi/boom'
 import { Genero } from '@Genero/genero.model'
-import { where } from 'sequelize/types'
 
 export class Service implements IService {
   constructor() {}
@@ -17,15 +16,19 @@ export class Service implements IService {
   deletePersonaje = async (id: number) => {
     const resp = await Personaje.destroy({ where: { id } })
     if (!resp) {
-      throw boomify(new Error('No existe el personaje'), { statusCode: 400 })
+      throw boomify(new Error('No existe el personaje'), { statusCode: 404 })
     }
   }
 
   updatePersonaje = async (id: number, p: CretePer) => {
     const resp = await Personaje.update(p, { where: { id } })
     if (resp[0] === 0) {
-      throw boomify(new Error('No existe el personaje'), { statusCode: 400 })
+      throw boomify(new Error('No existe el personaje'), { statusCode: 404 })
     }
+  }
+
+  findByID = async (id: number) => {
+    return await Personaje.findOne({ where: { id }, include: { model: Pelicula, through: { attributes: [] } } })
   }
 
   findAll = async () => {
@@ -33,46 +36,26 @@ export class Service implements IService {
   }
 
   findByName = async (name: string) => {
-    return await Personaje.findAll({ where: { nombre: name }, include: Pelicula })
+    // return await Personaje.findOne({ where: { nombre: name }, include: Pelicula })
+    return await Personaje.findOne({ where: { nombre: name }, include: { model: Pelicula, through: { attributes: [] } } })
   }
 
   findByAge = async (age: number) => {
-    return await Personaje.findAll({ where: { edad: age }, include: Pelicula })
+    return await Personaje.findAll({ where: { edad: age }, include: { model: Pelicula, through: { attributes: [] } } })
   }
 
   findByMovie = async (idMovie: number) => {
-    const personajesFound: any = await Pelicula.findOne({ where: { id: idMovie }, include: Personaje })
-
-    if (!personajesFound) {
-      return []
-    }
-
-    const cleaner = personajesFound.personajes.map((p: any) => {
-      const { personaje_pelicula, ...rest } = p.toJSON()
-
-      return rest
-    })
-    return cleaner
-  }
-
-  findPersonajeByID = async (id: number) => {
-    const resp = await Personaje.findOne({ where: { id }, include: Pelicula })
-    if (!resp) throw boomify(new Error('No existe el personaje'), { statusCode: 400 })
-    return resp
+    const movie: any = await Pelicula.findOne({ where: { id: idMovie }, attributes: [], include: { model: Personaje, through: { attributes: [] } } })
+    return movie ? movie.personajes : []
   }
 
   /* -------------------------------- PELICULAS ------------------------------- */
   addMovie = async (newMovie: NewMovie): Promise<void> => {
-    const movie = {
-      ...newMovie,
-      fecha_creacion: new Date(newMovie.fecha_creacion),
-    }
-
-    await Pelicula.create(movie)
+    await Pelicula.create(newMovie)
   }
 
   findMovieByName = async (title: string) => {
-    const movies = await Pelicula.findAll({ include: Personaje })
+    const movies = await Pelicula.findAll({ include: { model: Personaje, through: { attributes: [] } } })
     if (!movies) return []
 
     const filtered = movies.filter((movie) => movie.toJSON().titulo.toLowerCase().includes(title.toLowerCase()))
@@ -80,14 +63,25 @@ export class Service implements IService {
   }
 
   findMovieByGenre = async (genre: string) => {
-    const movies = await Genero.findAll({ where: { nombre: genre }, include: Pelicula })
+    const movies: any = await Genero.findOne({
+      where: { nombre: genre },
+      attributes: [],
+      include: { model: Pelicula, through: { attributes: [] } },
+    })
     if (!movies) return []
 
-    return movies
+    const newArr = []
+
+    for await (let mov of movies.peliculas) {
+      const movie = await Pelicula.findOne({ where: { id: mov.id }, include: { model: Personaje, through: { attributes: [] } } })
+      newArr.push(movie)
+    }
+
+    return newArr
   }
 
   findMovieByOrder = async (order: string) => {
-    const movies: any = await Pelicula.findAll({ include: Personaje })
+    const movies: any = await Pelicula.findAll({ include: { model: Personaje, through: { attributes: [] } } })
     if (!movies) return []
 
     let ordered
@@ -106,22 +100,22 @@ export class Service implements IService {
   }
 
   findMovieByID = async (id: number) => {
-    const movie = await Pelicula.findOne({ where: { id }, include: Personaje })
-    if (!movie) throw boomify(new Error('No existe la pelicula'), { statusCode: 400 })
+    const movie = await Pelicula.findOne({ where: { id }, include: { model: Personaje, through: { attributes: [] } } })
+    if (!movie) throw boomify(new Error('No existe la pelicula'), { statusCode: 404 })
     return movie
   }
 
   deleteMovie = async (id: number) => {
     const resp = await Pelicula.destroy({ where: { id } })
     if (!resp) {
-      throw boomify(new Error('La pelicula no existe'), { statusCode: 400 })
+      throw boomify(new Error('La pelicula no existe'), { statusCode: 404 })
     }
   }
 
   updateMovie = async (id: number, movie: NewMovie) => {
     const resp = await Pelicula.update(movie, { where: { id } })
     if (resp[0] === 0) {
-      throw boomify(new Error('No existe la pelicula'), { statusCode: 400 })
+      throw boomify(new Error('No existe la pelicula'), { statusCode: 404 })
     }
   }
 
@@ -130,7 +124,7 @@ export class Service implements IService {
     const movie: any = await Pelicula.findOne({ where: { id: idMovie } })
 
     if (!character || !movie) {
-      throw boomify(new Error('El personaje o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('El personaje o la pelicula, no existe'), { statusCode: 404 })
     }
 
     movie.addPersonaje(character)
@@ -140,12 +134,12 @@ export class Service implements IService {
     const character: any = await Personaje.findOne({ where: { id: idCharacter } })
     const movie: any = await Pelicula.findOne({ where: { id } })
     if (!character || !movie) {
-      throw boomify(new Error('El personaje o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('El personaje o la pelicula, no existe'), { statusCode: 404 })
     }
     const resp = await movie.removePersonaje(character)
 
     if (!resp) {
-      throw boomify(new Error('El personaje o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('No hay relación entre la pelicula y el personaje'), { statusCode: 404 })
     }
   }
 
@@ -157,14 +151,14 @@ export class Service implements IService {
   deleteGenre = async (id: number) => {
     const resp = await Genero.destroy({ where: { id } })
     if (!resp) {
-      throw boomify(new Error('No existe el género'), { statusCode: 400 })
+      throw boomify(new Error('No existe el género'), { statusCode: 404 })
     }
   }
 
   updateGenre = async (id: number, genre: newGenre) => {
     const resp = await Genero.update(genre, { where: { id } })
     if (resp[0] === 0) {
-      throw boomify(new Error('No existe el género'), { statusCode: 400 })
+      throw boomify(new Error('No existe el género'), { statusCode: 404 })
     }
   }
 
@@ -177,16 +171,16 @@ export class Service implements IService {
     const movie: any = await Pelicula.findOne({ where: { id: idMovie } })
 
     if (!genre || !movie) {
-      throw boomify(new Error('El género o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('El género o la pelicula, no existe'), { statusCode: 404 })
     }
 
     genre.addPelicula(movie)
   }
 
   findGenreByID = async (id: number) => {
-    const resp = await Genero.findOne({ where: { id } })
+    const resp = await Genero.findOne({ where: { id }, include: { model: Pelicula, through: { attributes: [] } } })
     if (!resp) {
-      throw boomify(new Error('No existe el género'), { statusCode: 400 })
+      throw boomify(new Error('No existe el género'), { statusCode: 404 })
     }
     return resp
   }
@@ -195,11 +189,11 @@ export class Service implements IService {
     const genre: any = await Genero.findOne({ where: { id } })
     const movie: any = await Pelicula.findOne({ where: { id: idMovie } })
     if (!genre || !movie) {
-      throw boomify(new Error('El género o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('El género o la pelicula, no existe'), { statusCode: 404 })
     }
     const resp = await genre.removePelicula(movie)
     if (!resp) {
-      throw boomify(new Error('El género o la pelicula, no existe'), { statusCode: 400 })
+      throw boomify(new Error('No hay relación entre el genero y la pelicula'), { statusCode: 404 })
     }
   }
 }

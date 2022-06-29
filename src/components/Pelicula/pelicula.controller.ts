@@ -3,6 +3,7 @@ import { IService, Middleware } from '@Types'
 
 export class PeliculaController {
   private service: IService
+
   constructor(service: IService) {
     this.service = service
   }
@@ -10,11 +11,27 @@ export class PeliculaController {
   create: Middleware = async (req, res, next) => {
     try {
       const { body } = req
-      await this.service.addMovie(body)
-      res.sendStatus(200)
+
+      const fecha = body.fecha_creacion
+      const reGoodDate = /^\d{2}\/\d{2}\/\d{4}$/
+
+      if (!reGoodDate.test(fecha)) {
+        throw boomify(new Error('Formato de fecha incorrecto'), { statusCode: 400 })
+      }
+
+      const newFormat = new Date(fecha)
+
+      const timestamp = newFormat.getTime()
+
+      if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
+        throw boomify(new Error('Formato de fecha incorrecto'), { statusCode: 400 })
+      }
+
+      await this.service.addMovie({ ...body, fecha_creacion: newFormat })
+      res.sendStatus(201)
     } catch (error: any) {
       if (error.name === 'SequelizeUniqueConstraintError') {
-        return next(boomify(new Error('Ya existe el personaje'), { statusCode: 400 }))
+        return next(boomify(new Error('Ya existe una pelicula con ese nombre'), { statusCode: 409 }))
       }
       next(error)
     }
@@ -23,8 +40,14 @@ export class PeliculaController {
   find: Middleware = async (req, res, next) => {
     try {
       const { name, genre, order } = req.query
+      const { id } = req.params
 
       let peliculas
+
+      if (id) {
+        peliculas = await this.service.findMovieByID(Number(id))
+        return res.status(200).send(peliculas)
+      }
 
       if (name && typeof name === 'string') {
         peliculas = await this.service.findMovieByName(name)
@@ -54,8 +77,11 @@ export class PeliculaController {
       const { body } = req
       const { id } = req.params
       await this.service.updateMovie(Number(id), body)
-      res.sendStatus(202)
-    } catch (error) {
+      res.sendStatus(200)
+    } catch (error: any) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return next(boomify(new Error('Ya existe una pelicula con ese nombre'), { statusCode: 409 }))
+      }
       next(error)
     }
   }
@@ -63,9 +89,8 @@ export class PeliculaController {
   delete: Middleware = async (req, res, next) => {
     try {
       const { id } = req.params
-
       await this.service.deleteMovie(Number(id))
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -75,9 +100,8 @@ export class PeliculaController {
     try {
       const { id } = req.params
       const { idCharacter } = req.body
-
       await this.service.addCharacterToMovie(Number(id), idCharacter)
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -87,7 +111,7 @@ export class PeliculaController {
     try {
       const { id, idCharacter } = req.params
       await this.service.removeCharacterFromMovie(Number(id), Number(idCharacter))
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }

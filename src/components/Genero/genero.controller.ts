@@ -3,6 +3,7 @@ import { IService, Middleware } from '@Types'
 
 export class GeneroController {
   private service: IService
+
   constructor(service: IService) {
     this.service = service
   }
@@ -14,7 +15,7 @@ export class GeneroController {
       res.sendStatus(201)
     } catch (error: any) {
       if (error.name === 'SequelizeUniqueConstraintError') {
-        return next(boomify(new Error('Ya existe el género'), { statusCode: 400 }))
+        return next(boomify(new Error('Ya existe el género'), { statusCode: 409 }))
       }
       next(error)
     }
@@ -42,8 +43,11 @@ export class GeneroController {
       const { id } = req.params
       const { body } = req
       await this.service.updateGenre(Number(id), body)
-      res.sendStatus(202)
-    } catch (error) {
+      res.sendStatus(200)
+    } catch (error: any) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return next(boomify(new Error('Ya existe un genero con el mismo nombre'), { statusCode: 409 }))
+      }
       next(error)
     }
   }
@@ -52,7 +56,7 @@ export class GeneroController {
     try {
       const { id } = req.params
       await this.service.deleteGenre(Number(id))
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -63,7 +67,7 @@ export class GeneroController {
       const { id } = req.params
       const { idMovie } = req.body
       await this.service.addMovieToGenre(Number(id), idMovie)
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -72,9 +76,8 @@ export class GeneroController {
   removeMovie: Middleware = async (req, res, next) => {
     try {
       const { id, idMovie } = req.params
-
       await this.service.removeMovieFromGenre(Number(id), Number(idMovie))
-      res.sendStatus(202)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }

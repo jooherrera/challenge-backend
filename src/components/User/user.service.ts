@@ -8,7 +8,7 @@ export class UserService implements IUserService {
 
   async createUser(user: string, password: string, email: string) {
     const encryptedPassword = await encryptPassword(password)
-    await User.create({ user, password: encryptedPassword })
+    await User.create({ user, password: encryptedPassword, email })
 
     const optionsUser = mailOptionsToUser(email, user)
 
