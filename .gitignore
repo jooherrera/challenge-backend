@@ -2,3 +2,6 @@ node_modules
 .env
 database
 dist
+Dockerfile
+docker-compose.yml
+.dockerignore
