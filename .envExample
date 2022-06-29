@@ -1,7 +1,7 @@
 PORT=3000
 
-SALT=8
-SECRET=dsagasgdagsdgsdagdsaagsd
+SALT=4
+SECRET=secret
 EXP_TIME=1d
 
 

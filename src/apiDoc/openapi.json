@@ -1,0 +1,1383 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Challenge Backend - NodeJs",
+    "description": "API para explorar el mundo de Disney. Podrás conocer y modificar los personajes que lo componen y entender en qué películas participaron estos.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "jooherrera4@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Home",
+      "description": "Home API"
+    },
+    {
+      "name": "User",
+      "description": "Registro y login de usuarios"
+    },
+    {
+      "name": "Personaje",
+      "description": "CRUD de personajes"
+    },
+    {
+      "name": "Película",
+      "description": "CRUD de películas"
+    },
+    {
+      "name": "Género",
+      "description": "CRUD de Género"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Home"
+        ],
+        "summary": "Muestra un mensaje de \"HOME API\"",
+        "responses": {
+          "200": {
+            "description": "(OK)"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "description": "Si la operación fue exitosa, envia un mensaje al email registrado.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Registra un usuario",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/newUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "409": {
+            "description": "Usuario no disponible"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "Retorna un objeto con el jwt.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Verifica las credenciales",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Retorna el token generado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        }
+      }
+    },
+    "/characters": {
+      "post": {
+        "tags": [
+          "Personaje"
+        ],
+        "summary": "Agrega un nuevo personaje a la base de datos",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/newCharacter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Personaje agregado exitosamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "409": {
+            "description": "Ya existe un personaje con el mismo nombre"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Personaje"
+        ],
+        "summary": "Consulta por los personajes almacenados",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "Muestra un personaje por nombre",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "age",
+            "description": "Muestra los personajes de cierta edad",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "idMovie",
+            "description": "Muestra los personajes de una película",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna informarción de los personajes",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "All Characters": {
+                    "$ref": "#/components/examples/allcharacters"
+                  },
+                  "By Name": {
+                    "$ref": "#/components/examples/characterByName"
+                  },
+                  "By Age": {
+                    "$ref": "#/components/examples/characterByAge"
+                  },
+                  "By Movie": {
+                    "$ref": "#/components/examples/characterByMovie"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/characters/{id}": {
+      "get": {
+        "tags": [
+          "Personaje"
+        ],
+        "summary": "Consulta por un personaje",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna un personaje",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "By ID": {
+                    "$ref": "#/components/examples/characterByName"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "patch": {
+        "description": "No es obligatorio enviar todos los campos. Se puede enviar de a uno.",
+        "tags": [
+          "Personaje"
+        ],
+        "summary": "Actualiza información de un personaje",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Id del personaje",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/patchCharacter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Actualizado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "description": "El nombre del personaje tiene que ser unico"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Personaje"
+        ],
+        "summary": "Elimina un personaje",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eliminado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/movies": {
+      "post": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Agrega una película a la base de datos",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/newMovie"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Película agregada correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "409": {
+            "description": "El nombre de la película tiene que ser único"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Consulta por las películas almacenadas",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "Nombre de la película",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genre",
+            "description": "Género de la película",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "description": "Ordenar por fecha de creación",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DES"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna información de las películas",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "All movies": {
+                    "$ref": "#/components/examples/allMovies"
+                  },
+                  "By name": {
+                    "$ref": "#/components/examples/movieByName"
+                  },
+                  "By genre": {
+                    "$ref": "#/components/examples/movieByGenre"
+                  },
+                  "By order": {
+                    "$ref": "#/components/examples/movieByOrder"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/movies/{id}": {
+      "get": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Consulta por una película almacenada",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna información de las películas",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "By ID": {
+                    "$ref": "#/components/examples/movieByID"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Actualiza información de una película",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/patchMovie"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Película actualizada correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "description": "Ya existe una pelicula con ese nombre."
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Elimina una película",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eliminado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/movies/{id}/characters": {
+      "post": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Agrega un personaje a una película",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idMovie"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/addCharacterToMovie"
+        },
+        "responses": {
+          "200": {
+            "description": "Agregado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/movies/{id}/characters/{idCharacter}": {
+      "delete": {
+        "tags": [
+          "Película"
+        ],
+        "summary": "Elimina un personaje de una película",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idMovie"
+          },
+          {
+            "$ref": "#/components/parameters/idCharacter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Se eliminó el personaje de la película correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/genres": {
+      "post": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Agrega un género",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/newGenre"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Género agregado con éxito"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "409": {
+            "description": "El nombre tiene que ser unico."
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Consulta por los géneros",
+        "responses": {
+          "200": {
+            "description": "Retorna una lista con todos los géneros",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "All Genres": {
+                    "$ref": "#/components/examples/allGenres"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/genres/{id}": {
+      "get": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Consulta género por id",
+        "description": "Retorna un género con todas las películas que estén asociadas.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna información de un género",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "By ID": {
+                    "$ref": "#/components/examples/oneGenre"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Actualiza un género",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateGenre"
+        },
+        "responses": {
+          "200": {
+            "description": "Género actualizado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "description": "Ya existe un género con el mismo nombre"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Elimina un género",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Género eliminado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/genres/{id}/movies": {
+      "post": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Agrega una película a un género",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idGenre"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/addMovieToGenre"
+        },
+        "responses": {
+          "200": {
+            "description": "Agregado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badJsonFormat"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    },
+    "/genres/{id}/movies/{idMovie}": {
+      "delete": {
+        "tags": [
+          "Género"
+        ],
+        "summary": "Elimina una película de un género",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idGenre"
+          },
+          {
+            "in": "path",
+            "name": "idMovie",
+            "description": "ID de la película",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eliminado correctamente"
+          },
+          "400": {
+            "$ref": "#/components/responses/badParams"
+          },
+          "401": {
+            "$ref": "#/components/responses/unAuthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/unknown"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "newUser": {
+        "title": "Nuevo usuario",
+        "type": "object",
+        "required": [
+          "user",
+          "password",
+          "email"
+        ],
+        "properties": {
+          "user": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "example": {
+          "user": "miUsuario",
+          "password": "asd123das",
+          "email": "email@email.com"
+        }
+      },
+      "login": {
+        "title": "Login",
+        "type": "object",
+        "required": [
+          "user",
+          "password"
+        ],
+        "properties": {
+          "user": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "user": "miUsuario",
+          "password": "asd123das"
+        }
+      },
+      "newCharacter": {
+        "title": "Personaje",
+        "type": "object",
+        "required": [
+          "imagen",
+          "nombre",
+          "edad",
+          "peso",
+          "historia"
+        ],
+        "properties": {
+          "imagen": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "edad": {
+            "type": "number"
+          },
+          "peso": {
+            "type": "number"
+          },
+          "historia": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg",
+          "nombre": "Aladdin",
+          "edad": 18,
+          "peso": 58,
+          "historia": "Aladdín es un joven...."
+        }
+      },
+      "patchCharacter": {
+        "title": "Actualizar Personaje",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/newCharacter"
+          }
+        ]
+      },
+      "newMovie": {
+        "title": "Película",
+        "type": "object",
+        "required": [
+          "imagen",
+          "titulo",
+          "fecha_creacion",
+          "calificacion"
+        ],
+        "properties": {
+          "imagen": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "fecha_creacion": {
+            "type": "string",
+            "format": "mm/dd/yyyy"
+          },
+          "calificacion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "example": {
+          "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg",
+          "titulo": "Aladdin: El regreso de Jafar",
+          "fecha_creacion": "05/20/1992",
+          "calificacion": 5
+        }
+      },
+      "patchMovie": {
+        "title": "Actualizar Película",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/newMovie"
+          }
+        ]
+      },
+      "newGenre": {
+        "title": "Género",
+        "type": "object",
+        "required": [
+          "imagen",
+          "nombre"
+        ],
+        "properties": {
+          "imagen": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "imagen": "https://infolibros.org/wp-content/uploads/2020/04/Libros-de-suspenso-PDF.jpg?ezimgfmt=rs%3Adevice%2Frscb33-1",
+          "nombre": "Suspenso"
+        }
+      },
+      "patchGenre": {
+        "title": "Actualizar Género",
+        "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/newGenre"
+          }
+        ]
+      }
+    },
+    "requestBodies": {
+      "addCharacterToMovie": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "idCharacter": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateGenre": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/patchGenre"
+            }
+          }
+        }
+      },
+      "addMovieToGenre": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "idMovie": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "ID": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "idMovie": {
+        "in": "path",
+        "name": "id",
+        "description": "ID de la película",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "idCharacter": {
+        "in": "path",
+        "name": "idCharacter",
+        "description": "ID del personaje",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "idGenre": {
+        "in": "path",
+        "name": "id",
+        "description": "ID del género",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    "examples": {
+      "allcharacters": {
+        "value": [
+          {
+            "image": "url",
+            "nombre": "Aladdín"
+          },
+          {
+            "image": "url",
+            "nombre": "Elsa"
+          }
+        ]
+      },
+      "characterByName": {
+        "value": {
+          "id": 2,
+          "nombre": "Aladdín",
+          "edad": 18,
+          "peso": 58,
+          "historia": "Aladdín es un joven....",
+          "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg",
+          "peliculas": [
+            {
+              "id": 3,
+              "titulo": "Aladdín: El regreso de Jafar",
+              "fecha_creacion": "1992-05-20T03:00:00.000Z",
+              "calificacion": 5,
+              "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg"
+            }
+          ]
+        }
+      },
+      "characterByAge": {
+        "value": [
+          {
+            "id": 2,
+            "nombre": "Aladdín",
+            "edad": 18,
+            "peso": 58,
+            "historia": "Aladdín es un joven....",
+            "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg",
+            "peliculas": [
+              {
+                "id": 3,
+                "titulo": "Aladdín: El regreso de Jafar",
+                "fecha_creacion": "1992-05-20T03:00:00.000Z",
+                "calificacion": 5,
+                "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg"
+              }
+            ]
+          }
+        ]
+      },
+      "characterByMovie": {
+        "value": [
+          {
+            "id": 2,
+            "nombre": "Aladdín",
+            "edad": 18,
+            "peso": 58,
+            "historia": "Aladdín es un joven....",
+            "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg"
+          }
+        ]
+      },
+      "allMovies": {
+        "description": "Retorna una lista con todas las películas almacenadas",
+        "value": [
+          {
+            "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg",
+            "titulo": "Aladdín: El regreso de Jafar",
+            "fecha_creacion": "2020-02-01T03:00:00.000Z"
+          }
+        ]
+      },
+      "movieByID": {
+        "description": "Retorna una película",
+        "value": {
+          "id": 3,
+          "titulo": "Aladdín: El regreso de Jafar",
+          "fecha_creacion": "1992-05-20T03:00:00.000Z",
+          "calificacion": 5,
+          "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg\"",
+          "personajes": [
+            {
+              "id": 2,
+              "nombre": "Aladdín",
+              "edad": 20,
+              "peso": 50,
+              "historia": "Aladdín es un joven....",
+              "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg"
+            }
+          ]
+        }
+      },
+      "movieByName": {
+        "description": "Retorna una lista con las películas que contengan en su título la palabra de la query",
+        "value": [
+          {
+            "id": 3,
+            "titulo": "Aladdín: El regreso de Jafar",
+            "fecha_creacion": "1992-05-20T03:00:00.000Z",
+            "calificacion": 5,
+            "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg\"",
+            "personajes": [
+              {
+                "id": 2,
+                "nombre": "Aladdín",
+                "edad": 20,
+                "peso": 50,
+                "historia": "Aladdín es un joven....",
+                "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg"
+              }
+            ]
+          }
+        ]
+      },
+      "movieByGenre": {
+        "description": "Retorna la lista de películas de un género",
+        "value": [
+          {
+            "id": 3,
+            "titulo": "Aladdín: El regreso de Jafar",
+            "fecha_creacion": "2020-02-01T03:00:00.000Z",
+            "calificacion": 5,
+            "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg\"",
+            "personajes": [
+              {
+                "id": 2,
+                "nombre": "Aladdín",
+                "edad": 20,
+                "peso": 50,
+                "historia": "Aladdín es un joven....",
+                "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg"
+              }
+            ]
+          }
+        ]
+      },
+      "movieByOrder": {
+        "description": "Retorna una lista de películas ordenadas por la fecha de creación [ASC - DES]",
+        "value": [
+          {
+            "id": 3,
+            "titulo": "Aladdín: El regreso de Jafar",
+            "fecha_creacion": "1992-05-20T03:00:00.000Z",
+            "calificacion": 5,
+            "imagen": "https://i.blogs.es/9b1137/retorno-jafar/1366_2000.jpeg\"",
+            "personajes": [
+              {
+                "id": 2,
+                "nombre": "Aladdín",
+                "edad": 20,
+                "peso": 50,
+                "historia": "Aladdín es un joven....",
+                "imagen": "https://i.pinimg.com/564x/7b/dc/22/7bdc22e80d9f9763ff979c7f590ceb0f.jpg"
+              }
+            ]
+          }
+        ]
+      },
+      "oneGenre": {
+        "value": {
+          "id": 2,
+          "nombre": "Suspenso",
+          "imagen": "https://infolibros.org/wp-content/uploads/2020/04/Libros-de-suspenso-PDF.jpg?ezimgfmt=rs%3Adevice%2Frscb33-1",
+          "peliculas": [
+            null
+          ]
+        }
+      },
+      "allGenres": {
+        "value": [
+          {
+            "id": 2,
+            "nombre": "Suspenso",
+            "imagen": "https://infolibros.org/wp-content/uploads/2020/04/Libros-de-suspenso-PDF.jpg?ezimgfmt=rs%3Adevice%2Frscb33-1"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "badJsonFormat": {
+        "description": "Formato JSON inválido | No cumple con los parámetros requeridos"
+      },
+      "badParams": {
+        "description": "No cumple con los parámetros requeridos"
+      },
+      "unknown": {
+        "description": "Problema interno en el servidor"
+      },
+      "unAuthorized": {
+        "description": "No autorizado."
+      },
+      "notFound": {
+        "description": "No se encontró el recurso"
+      }
+    },
+    "securitySchemes": {
+      "Token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

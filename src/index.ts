@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import swaggerUI from 'swagger-ui-express'
+import * as apiDoc from './apiDoc/openapi.json'
 
 import '@Config'
 
@@ -14,7 +16,7 @@ app.use(cors())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
+app.use('/api-doc', swaggerUI.serve, swaggerUI.setup(apiDoc))
 app.use(router)
 
 app.use(Mid.boomErrorHandler)
