@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { userController } from '@Config'
 import { Mid } from '@Middlewares'
-import { registerSchema } from 'src/utils/requestSchema'
+import { registerSchema } from '@Utils/schemas'
 
 export const userNetwork = Router()
 
