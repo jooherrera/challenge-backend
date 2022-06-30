@@ -5,3 +5,4 @@ dist
 Dockerfile
 docker-compose.yml
 .dockerignore
+challenge-api.tar

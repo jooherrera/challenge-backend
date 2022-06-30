@@ -1,23 +1,29 @@
 # Challenge-Backend NodeJs
 
-## Instalación
+## Instalación :pushpin:
 
 ```
 npm install
 ```
 
-Renombrar el archivo **.envExample** a **.env** y completar con las variables.
+:pushpin: Renombrar el archivo **.envExample** a **.env** y completar con las variables.
 
-## Build
+:pushpin: Para el envio de mails, utiliza nodemailer con gmail.
+
+## Build :wrench:
 
 ```
 npm run build
 ```
 
-## Start
+## Start :rocket:
 
 ```
 npm start
 ```
 
 Automaticamente se crea una base de datos vacia.
+
+### Version online :zap:
+
+https://challenge.jherrera.tk/api-doc/
